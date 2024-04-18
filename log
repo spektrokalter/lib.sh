@@ -1,0 +1,10 @@
+#!/hint/bash
+
+say() {
+	printf '%s\n' "$*" >&2
+}
+
+die() {
+	printf '%s\n' "$*" >&2
+	exit 1
+}

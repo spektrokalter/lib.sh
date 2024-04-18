@@ -1,0 +1,25 @@
+#!/hint/bash
+
+json_export() {
+	eval "$(jq --raw-output 'to_entries|map("export -- \(.key)=\(.value|@sh)")[]')"
+}
+
+json_file_export() {
+	local file="$1"
+
+	if [[ ! -f "$file" || ! -r "$file" ]]; then
+		die "bad file: $file"
+	fi
+	if ! jq empty -- "$file" >/dev/null 2>&1; then
+		die "json is not valid: $file"
+	fi
+	if ! json_all_values_are_string <"$file"; then
+		die "Not all values are string in $file. Make them string to proceed."
+	fi
+
+	json_export <"$file"
+}
+
+json_all_values_are_string() {
+	[[ "$(jq 'reduce .[] as $item (true; . and ($item | type == "string"))')" == 'true' ]]
+}
